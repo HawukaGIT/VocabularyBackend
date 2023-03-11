@@ -2,19 +2,24 @@ import mongodb from "mongodb"
 const ObjectId = mongodb.ObjectId
 
 let slowka
-let users
+let listy
+let uzyt
 
 export default class ListsDAO {
   static async injectDB(conn) {
     if (slowka) {
       return
     }
-    if (users) {
+    if (listy) {
+      return
+    }
+    if (uzyt) {
       return
     }
     try {
       slowka = await conn.db("slowka").collection("slowka")
-      users = await conn.db("slowka").collection("uzyt")
+      listy = await conn.db("slowka").collection("listy")
+      uzyt = await conn.db("slowka").collection("uzyt")
     } catch (e) {
       console.error(`Unable to establish collection handles in userDAO: ${e}`)
     }
@@ -27,7 +32,7 @@ export default class ListsDAO {
         //wordID: wordID,
         word: word,
         translation: translation
-        
+
       }
 
       return await slowka.insertOne(wordDoc)
@@ -78,7 +83,7 @@ export default class ListsDAO {
     console.log("list:", list)
     try {
       //const cursor = await slowka.find({ list: list })
-      const cursor = await listy.find()
+      const cursor = await slowka.find({ "list": list })
       return cursor.toArray()
     } catch (e) {
       console.error(`Unable to get list: ${e}`)
@@ -93,6 +98,33 @@ export default class ListsDAO {
       return cursor.toArray()
     } catch (e) {
       console.error(`Unable to get words: ${e}`)
+      return { error: e }
+    }
+  }
+
+
+  static async createUser(login, password) {
+    try {
+      let date = new Date()
+      const user = {
+        //wordID: wordID,
+        login: login,
+        password: password,
+        date: date
+      }
+      return await uzyt.insertOne(user)
+    } catch (e) {
+      console.error(`Unable to post user: ${e}`)
+      return { error: e }
+    }
+  }
+
+  static async getUser(login) {
+    //console.log(`sprawdzanie zajętości loginu ${login}`)
+    try {
+      return await uzyt.findOne({ login: login })
+    } catch (e) {
+      console.error(`Unable to get user: ${e}`)
       return { error: e }
     }
   }

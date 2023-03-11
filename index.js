@@ -9,7 +9,7 @@ const mongoPassword = process.env['MongoPassword']
 const mongoUsername = process.env['MongoUsername']
 const uri = `mongodb+srv://${mongoUsername}:${mongoPassword}@slowka.qprfm5a.mongodb.net/?retryWrites=true&w=majority`
 
-const port = 8000
+const port = process.env.PORT || 8000
 
 MongoClient.connect(
   uri,
@@ -21,8 +21,8 @@ MongoClient.connect(
 )
   .catch(err => {
     console.error(err.stack)
-    console.log(err)
-    process.exit(2)
+    //console.log(err)
+    process.exit(1)
   })
   .then(async client => {
     //connect with listsDAO
